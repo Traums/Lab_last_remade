@@ -26,6 +26,8 @@ __published:	// IDE-managed Components
 	TButton *Button4;
 	TButton *Button5;
 	TLabel *Label5;
+	TLabel *Label6;
+	TLabel *Label7;
 	void __fastcall Button1Click(TObject *Sender);
 	void __fastcall Button2Click(TObject *Sender);
 	void __fastcall Button4Click(TObject *Sender);
@@ -44,6 +46,7 @@ public:		// User declarations
 
 typedef struct
 {
+        int ID;
 		UnicodeString Signature;
 		int ClusterNumber;
 } TreeNodeStruct;

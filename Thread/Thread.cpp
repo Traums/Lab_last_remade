@@ -41,24 +41,24 @@ void __fastcall ReadThread::Execute()
 		}
 
 		int dummmy = Iterator_inst->Current();
-
-		BYTE* dataBuffer = new byte[FS->GetBytesPerSector()];
+		//BYTE* dataBuffer;
 		//BYTE dataBuffer = FS->GetBytesPerSector();
-		dataBuffer = Iterator_inst->GetDataOnCluster();
+		//BYTE * dataBuffer[512] = new byte[FS->GetBytesPerSector()];
 
-		BYTE Block[512] = *dataBuffer;
-
+        BYTE* dataBuffer = new byte[FS->GetBytesPerSector()];
+		dataBuffer = Iterator_inst->GetDataOnCluster(dataBuffer);
 		UpdateLabel();
-        /*
+
+
 		if(Form1->CheckBox1->Enabled){
-			if (Decorator(dataBuffer))continue;
-		} */
+			if (Check_Cluster(dataBuffer))continue;
+		}
 
 		std::wstring DetectedSign = CheckSignature(dataBuffer);
 		if(!compare_wstr(DetectedSign,L"Not Found"))
 		{
-			std::wstring sql = L"INSERT INTO Signatures (Cluster, Signature) Values ("  + std::to_wstring(Iterator_inst->Current())
-			+ L", \"" + DetectedSign + L"\");";
+			std::wstring sql = L"INSERT INTO Signatures (ID, Cluster, Signature) Values (" + std::to_wstring(SignFound+1) + L","
+			+ std::to_wstring(Iterator_inst->Current())	+ L", \"" + DetectedSign + L"\");";
 
 			const wchar_t* sql_statement = sql.c_str();
 			int result = sqlite3_prepare16_v2(Database, sql_statement, -1, &pStatement, NULL);
@@ -78,10 +78,8 @@ void __fastcall ReadThread::Execute()
 		}
 
 	 }
-	 if (SignFound == 0 )
-	 {
-	 Form1->Label4->Caption = "Сигнатур в текущих кластерах не найдено.";
-	 }
+	 Form1->Label7->Caption = SignFound;
+
 	 sqlite3_close(Database);
 }
 bool compare_wstr(std::wstring stringA , std::wstring stringB)
@@ -91,7 +89,7 @@ bool compare_wstr(std::wstring stringA , std::wstring stringB)
 
     return (stringA == stringB);
 }
-bool Decorator(BYTE* Flow){
+bool Check_Cluster(BYTE* Flow){
 	if (Flow != NULL )
 		return (Flow[0] == 0x00);
 	else

@@ -27,7 +27,7 @@ public:
 	bool GetEnableDec();
 	__fastcall ReadThread(bool CreateSuspended, AbstractFS* FS, sqlite3* Database);
 };
-bool Decorator(BYTE* Flow);
+bool Check_Cluster(BYTE* Flow);
 bool compare_wstr(std::wstring stringA , std::wstring stringB);
 //---------------------------------------------------------------------------
 #endif

@@ -32,10 +32,9 @@ unsigned long Iterator::GetClusterNumber(){
 void Iterator::Stop(){
 	Done = true;
 }
-byte* Iterator::GetDataOnCluster(){
-	dataBuffer = FS->ReadCluster(ClusterNumber, dataBuffer);
-	BYTE* ptrData = dataBuffer;
-	return ptrData;
+byte* Iterator::GetDataOnCluster( byte *dataBuffer){
+	//dataBuffer = FS->ReadCluster(ClusterNumber, dataBuffer);
+	return FS->ReadCluster(ClusterNumber, dataBuffer);//dataBuffer;
 }
 
 

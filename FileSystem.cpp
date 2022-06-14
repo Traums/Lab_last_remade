@@ -143,7 +143,7 @@ byte* AbstractFS::ReadCluster(unsigned long long number, BYTE *dataBuffer){
 
 	bool ReadSector;
 	if(!ReadFile(DiskHandle,
-				 Block,
+				 dataBuffer,
 				 bytes,
 				 &bytesRead,
 				 NULL))
@@ -163,10 +163,11 @@ byte* AbstractFS::ReadCluster(unsigned long long number, BYTE *dataBuffer){
 		String Error = getError();
 		Form1->Label4->Caption = getError();
 		//CloseHandle(DiskHandle);
-	}
-	Byte* ptrBlock = Block;
-	dataBuffer = ptrBlock;
-    return dataBuffer ;
+	};
+	/*Byte* ptrBlock = Block;
+	dataBuffer = ptrBlock*/
+
+	return dataBuffer ;
 	//return true;
 }
 AbstractFS* FactoryFS(const wchar_t* disk_name){
@@ -234,5 +235,5 @@ char getError(){
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 				(LPSTR)&errMsg,
 				sizeof(errMsg), NULL );
-				return errMsg[65];
+				return *errMsg;
 }

@@ -10,7 +10,7 @@ class Iterator
 {
 	protected:
 	   unsigned long ClusterNumber;
-	   BYTE* dataBuffer;
+	   //BYTE* dataBuffer;
 	   unsigned long ClustersTotal;
 	   bool Done;
 	   AbstractFS* FS;
@@ -23,7 +23,7 @@ class Iterator
 		void Next();
 		int Current();
         void Stop();
-		byte* GetDataOnCluster();
+		byte* Iterator::GetDataOnCluster( byte *dataBuffer);
 };
 
 #endif

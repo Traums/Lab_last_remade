@@ -80,8 +80,9 @@ void __fastcall TForm1::Button2Click(TObject *Sender)
 		 if (result == SQLITE_ROW) {
 			PVirtualNode entryNode = VirtualStringTree1 -> AddChild(VirtualStringTree1 -> RootNode);
 			TreeNodeStruct *nodeData = (TreeNodeStruct*)VirtualStringTree1 -> GetNodeData(entryNode);
-			nodeData -> ClusterNumber = sqlite3_column_int(pStatement,0);
-			nodeData -> Signature = (UnicodeString)(char*)sqlite3_column_text(pStatement,1);
+			nodeData -> ID = sqlite3_column_int(pStatement,0);
+			nodeData -> ClusterNumber = sqlite3_column_int(pStatement,1);
+			nodeData -> Signature = (UnicodeString)(char*)sqlite3_column_text(pStatement,2);
 			}
 	   if(result == SQLITE_DONE) break;
 	}
@@ -96,7 +97,19 @@ void __fastcall TForm1::Button4Click(TObject *Sender)
 	PVirtualNode selectedNode = VirtualStringTree1->FocusedNode;
 	VirtualStringTree1->DeleteNode(selectedNode);
 
-	sqlite3_close(Database);
+	int selectedNodeIndex = selectedNode->Index;
+	int delIndex;
+	sqlite3* DataBase;
+	sqlite3_stmt *pStatement;
+	const char *errmsg;
+
+	char* sqlStr;
+	selectedNodeIndex = selectedNodeIndex + 1;
+
+	std::string tmp = "DELETE FROM Signatures WHERE ID = " + std::to_string(selectedNodeIndex) + ";";
+	char const *res = tmp.c_str();
+
+	int deleteRes =  sqlite3_exec(Database, res,NULL, NULL ,NULL);
 }
 
 void __fastcall TForm1::Button3Click(TObject *Sender)
@@ -121,9 +134,13 @@ void __fastcall TForm1::VirtualStringTree1GetText(TBaseVirtualTree *Sender, PVir
 		switch (Column) {
 			case 0:
 			{
-				CellText = UnicodeString(nodeData -> ClusterNumber);  break;
+				CellText = UnicodeString(nodeData -> ID);  break;
 			}
 			case 1:
+			{
+				CellText = UnicodeString(nodeData -> ClusterNumber);  break;
+			}
+			case 2:
 			{
 				CellText = nodeData -> Signature; break;
 			}

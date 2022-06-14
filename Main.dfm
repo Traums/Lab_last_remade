@@ -65,6 +65,7 @@ object Form1: TForm1
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
+    Visible = False
   end
   object Label5: TLabel
     Left = 8
@@ -79,17 +80,48 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
   end
+  object Label6: TLabel
+    Left = 8
+    Top = 481
+    Width = 200
+    Height = 28
+    Caption = #1057#1080#1075#1085#1072#1090#1091#1088' '#1085#1072#1081#1076#1077#1085#1086':'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -23
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Label7: TLabel
+    Left = 223
+    Top = 481
+    Width = 13
+    Height = 28
+    Caption = '0'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -23
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
   object VirtualStringTree1: TVirtualStringTree
     Left = 8
     Top = 72
     Width = 497
     Height = 353
+    AccessibleName = 'Id'
     Header.AutoSizeIndex = 0
     TabOrder = 0
     OnGetText = VirtualStringTree1GetText
     Touch.InteractiveGestures = [igPan, igPressAndTap]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
     Columns = <
+      item
+        Position = 2
+        Text = 'Id'
+      end
       item
         Position = 0
         Text = #1057#1080#1075#1085#1072#1090#1091#1088#1072
@@ -114,10 +146,10 @@ object Form1: TForm1
     Text = 'C'
   end
   object Button1: TButton
-    Left = 736
-    Top = 68
-    Width = 97
-    Height = 36
+    Left = 727
+    Top = 64
+    Width = 82
+    Height = 40
     Caption = #1054#1087#1088#1077#1076#1077#1083#1080#1090#1100
     TabOrder = 2
     OnClick = Button1Click
@@ -139,11 +171,12 @@ object Form1: TForm1
     TabOrder = 3
   end
   object Button2: TButton
-    Left = 519
+    Left = 528
     Top = 248
-    Width = 258
+    Width = 281
     Height = 34
     Caption = #1055#1086#1080#1089#1082' '#1089#1080#1075#1085#1072#1090#1091#1088
+    Enabled = False
     TabOrder = 4
     OnClick = Button2Click
   end
