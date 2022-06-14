@@ -1,0 +1,30 @@
+//---------------------------------------------------------------------------
+
+#ifndef ReadThreadH
+#define ReadThreadH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include "Main.h"
+#include "FileSystem.h"
+#include "Iterator.h"
+#include "sqlite3.h"
+//---------------------------------------------------------------------------
+UnicodeString CheckSignature(BYTE* ByteFlow);
+
+class ReadThread : public TThread
+{
+private:
+protected:
+	AbstractFS* FS;
+	bool EnableDec;
+	Iterator* Iterator_inst;
+	void __fastcall Execute();
+	BYTE* Content;
+    sqlite3* Database;
+public:
+	AbstractFS* GetFS();
+	bool GetEnableDec();
+	__fastcall ReadThread(bool CreateSuspended, AbstractFS* FS, sqlite3* Database);
+};
+//---------------------------------------------------------------------------
+#endif

@@ -1,0 +1,29 @@
+//---------------------------------------------------------------------------
+
+#ifndef ReadThreadH
+#define ReadThreadH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include "Main.h"
+#include "FileSystem.h"
+#include "Iterator.h"
+#include "sqlite3.h"
+//---------------------------------------------------------------------------
+
+class ReadThread : public TThread
+{
+private:
+protected:
+	AbstractFS* FS;
+	bool EnableDec;
+	Iterator* Iterator;
+	void __fastcall Execute();
+	BYTE* Content;
+    sqlite3* Database;
+public:
+	AbstractFS* GetFS();
+	bool GetEnableDec();
+	__fastcall ReadThread(bool CreateSuspended, AbstractFS* FS, sqlite3* Database);
+};
+//---------------------------------------------------------------------------
+#endif

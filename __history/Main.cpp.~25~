@@ -1,0 +1,85 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Main.h"
+#include "sqlite3.h"
+#include "FileSystem.h"
+#include "ReadThread.h"
+#include <string>
+#include <string.h>
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma link "VirtualTrees"
+#pragma resource "*.dfm"
+TForm1 *Form1;
+sqlite3* Database;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+	: TForm(Owner)
+{
+	AbstractFS* FS;
+
+    VirtualStringTree1 -> NodeDataSize = sizeof(TreeNodeStruct);
+	sqlite3_stmt *pStatement;
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+	AbstractFS* FS;
+	UnicodeString FSInfo;
+	wchar_t Path[64];
+	UnicodeString deviceName = Form1->Edit1->Text;
+	wchar_t EditText = deviceName.w_str()[0];
+	swprintf(Path,L"\\\\.\\%c:",EditText);
+
+	FS = FactoryFS(Path);
+	FSInfo += "Тип ФС:";FSInfo += UnicodeString(FS->GetOEM());
+	FSInfo += "\nБайт на сектор:";FSInfo += UnicodeString(FS->GetBytesPerSector());
+	FSInfo += "\nСекторов в кластере:";FSInfo += UnicodeString(FS->GetSectorsPerCluster());
+	FSInfo += "\nБайт в кластере";FSInfo += UnicodeString(FS->GetBytesPerSector());
+	FSInfo += "\nКоличество кластеров:";FSInfo += UnicodeString(FS->GetTotalClusters());
+
+	Label2->Caption = FSInfo;
+	Label2->Visible = True;
+    Form1->Button2->Enabled = true;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button2Click(TObject *Sender)
+{
+	AbstractFS* FS;
+	wchar_t Path[64];
+	UnicodeString deviceName = Form1->Edit1->Text;
+	wchar_t EditText = deviceName.w_str()[0];
+	swprintf(Path,L"\\\\.\\%c:",EditText);
+
+	FS = FactoryFS(Path);
+	ReadThreadPtr = new ReadThread(false, FS, Database);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button4Click(TObject *Sender)
+{
+	PVirtualNode selectedNode = VirtualStringTree1->FocusedNode;
+	VirtualStringTree1->DeleteNode(selectedNode);
+
+	sqlite3_close(Database);
+}
+
+void __fastcall TForm1::Button3Click(TObject *Sender)
+{
+   VirtualStringTree1->Clear();
+
+   char sqlStr [] = "Drop Table Signatures";
+   int deleteRes =  sqlite3_exec(Database, sqlStr,NULL, NULL ,NULL);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button3Exit(TObject *Sender)
+{
+	sqlite3_close(Database);
+}
+//---------------------------------------------------------------------------
