@@ -40,7 +40,7 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	FSInfo += "Тип ФС:";FSInfo += UnicodeString(FS->GetOEM());
 	FSInfo += "\nБайт на сектор:";FSInfo += UnicodeString(FS->GetBytesPerSector());
 	FSInfo += "\nСекторов в кластере:";FSInfo += UnicodeString(FS->GetSectorsPerCluster());
-	FSInfo += "\nБайт в кластере";FSInfo += UnicodeString(FS->GetBytesPerSector());
+	FSInfo += "\nБайт в кластере ";FSInfo += UnicodeString(FS->GetBytesPerCluster());
 	FSInfo += "\nКоличество кластеров:";FSInfo += UnicodeString(FS->GetTotalClusters());
 
 	Label2->Caption = FSInfo;
@@ -71,23 +71,22 @@ void __fastcall TForm1::Button2Click(TObject *Sender)
 		errmsg = "DONE";
 	};
 
-	VirtualStringTree1 -> Clear();
-	VirtualStringTree1 -> BeginUpdate();
 	sqlite3_stmt *pStatement;
 	int result = sqlite3_prepare16_v2(Database, L"SELECT * FROM Signatures;", -1, &pStatement, NULL);
 	while (true) {
 		result = sqlite3_step(pStatement);
-		 if (result == SQLITE_ROW) {
+		if (result == SQLITE_ROW)
+		{
 			PVirtualNode entryNode = VirtualStringTree1 -> AddChild(VirtualStringTree1 -> RootNode);
 			TreeNodeStruct *nodeData = (TreeNodeStruct*)VirtualStringTree1 -> GetNodeData(entryNode);
+
 			nodeData -> ID = sqlite3_column_int(pStatement,0);
 			nodeData -> ClusterNumber = sqlite3_column_int(pStatement,1);
 			nodeData -> Signature = (UnicodeString)(char*)sqlite3_column_text(pStatement,2);
-			}
+		}
 	   if(result == SQLITE_DONE) break;
 	}
 	sqlite3_finalize(pStatement);
-	VirtualStringTree1 -> EndUpdate();
 
 }
 //---------------------------------------------------------------------------
@@ -129,7 +128,7 @@ void __fastcall TForm1::Button3Exit(TObject *Sender)
 void __fastcall TForm1::VirtualStringTree1GetText(TBaseVirtualTree *Sender, PVirtualNode Node,
 		  TColumnIndex Column, TVSTTextType TextType, UnicodeString &CellText)
 {
-   	if(!Node) return;
+	if(!Node) return;
     TreeNodeStruct *nodeData = (TreeNodeStruct*)VirtualStringTree1 -> GetNodeData(Node);
 		switch (Column) {
 			case 0:

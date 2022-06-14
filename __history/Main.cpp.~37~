@@ -19,6 +19,7 @@ sqlite3* Database;
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
 {
+	int openResult = sqlite3_open16(L".\\Database.sqlite", &Database);
 	AbstractFS* FS;
 
     VirtualStringTree1 -> NodeDataSize = sizeof(TreeNodeStruct);
@@ -39,7 +40,7 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	FSInfo += "Òèï ÔÑ:";FSInfo += UnicodeString(FS->GetOEM());
 	FSInfo += "\nÁàéò íà ñåêòîğ:";FSInfo += UnicodeString(FS->GetBytesPerSector());
 	FSInfo += "\nÑåêòîğîâ â êëàñòåğå:";FSInfo += UnicodeString(FS->GetSectorsPerCluster());
-	FSInfo += "\nÁàéò â êëàñòåğå";FSInfo += UnicodeString(FS->GetBytesPerSector());
+	FSInfo += "\nÁàéò â êëàñòåğå ";FSInfo += UnicodeString(FS->GetBytesPerCluster());
 	FSInfo += "\nÊîëè÷åñòâî êëàñòåğîâ:";FSInfo += UnicodeString(FS->GetTotalClusters());
 
 	Label2->Caption = FSInfo;
@@ -59,24 +60,31 @@ void __fastcall TForm1::Button2Click(TObject *Sender)
 	FS = FactoryFS(Path);
 	ReadThreadPtr = new ReadThread(false, FS, Database);
 
+	int openResult = sqlite3_open16(L".\\Database.sqlite", &Database);
+	const char *errmsg;
+	if( openResult != SQLITE_OK)
+	{
+		errmsg = sqlite3_errmsg(Database);
+	}
+	else
+	{
+		errmsg = "DONE";
+	};
+
 	VirtualStringTree1 -> Clear();
 	VirtualStringTree1 -> BeginUpdate();
 	sqlite3_stmt *pStatement;
-	int result = sqlite3_prepare16_v2(Database, L"SELECT * FROM Signatures", -1, &pStatement, NULL);
+	int result = sqlite3_prepare16_v2(Database, L"SELECT * FROM Signatures;", -1, &pStatement, NULL);
 	while (true) {
 		result = sqlite3_step(pStatement);
-		if(result == SQLITE_DONE) break;
-		else if (result == SQLITE_ROW) {
+		 if (result == SQLITE_ROW) {
 			PVirtualNode entryNode = VirtualStringTree1 -> AddChild(VirtualStringTree1 -> RootNode);
 			TreeNodeStruct *nodeData = (TreeNodeStruct*)VirtualStringTree1 -> GetNodeData(entryNode);
-			nodeData -> ClusterNumber = sqlite3_column_int(pStatement,0);
-			nodeData -> Signature = (UnicodeString)(char*)sqlite3_column_text(pStatement,1);
+			nodeData -> ID = sqlite3_column_int(pStatement,0);
+			nodeData -> ClusterNumber = sqlite3_column_int(pStatement,1);
+			nodeData -> Signature = (UnicodeString)(char*)sqlite3_column_text(pStatement,2);
 			}
-		else {
-			Application->MessageBox(L"Error in SELECT FROM DB!",L"ERROR", MB_OK);
-			break;
-		}
-
+	   if(result == SQLITE_DONE) break;
 	}
 	sqlite3_finalize(pStatement);
 	VirtualStringTree1 -> EndUpdate();
@@ -89,14 +97,26 @@ void __fastcall TForm1::Button4Click(TObject *Sender)
 	PVirtualNode selectedNode = VirtualStringTree1->FocusedNode;
 	VirtualStringTree1->DeleteNode(selectedNode);
 
-	sqlite3_close(Database);
+	int selectedNodeIndex = selectedNode->Index;
+	int delIndex;
+	sqlite3* DataBase;
+	sqlite3_stmt *pStatement;
+	const char *errmsg;
+
+	char* sqlStr;
+	selectedNodeIndex = selectedNodeIndex + 1;
+
+	std::string tmp = "DELETE FROM Signatures WHERE ID = " + std::to_string(selectedNodeIndex) + ";";
+	char const *res = tmp.c_str();
+
+	int deleteRes =  sqlite3_exec(Database, res,NULL, NULL ,NULL);
 }
 
 void __fastcall TForm1::Button3Click(TObject *Sender)
 {
    VirtualStringTree1->Clear();
 
-   char sqlStr [] = "Drop Table Signatures";
+   char sqlStr [] = "DELETE FROM Signatures;";
    int deleteRes =  sqlite3_exec(Database, sqlStr,NULL, NULL ,NULL);
 }
 //---------------------------------------------------------------------------
@@ -111,18 +131,27 @@ void __fastcall TForm1::VirtualStringTree1GetText(TBaseVirtualTree *Sender, PVir
 {
    	if(!Node) return;
     TreeNodeStruct *nodeData = (TreeNodeStruct*)VirtualStringTree1 -> GetNodeData(Node);
-
 		switch (Column) {
-
 			case 0:
+			{
+				CellText = UnicodeString(nodeData -> ID);  break;
+			}
+			case 1:
 			{
 				CellText = UnicodeString(nodeData -> ClusterNumber);  break;
 			}
-			case 1:
+			case 2:
 			{
 				CellText = nodeData -> Signature; break;
 			}
 		}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button5Click(TObject *Sender)
+{
+	if(ReadThreadPtr!=NULL)
+		ReadThreadPtr->Terminate();
 }
 //---------------------------------------------------------------------------
 
